@@ -23,7 +23,7 @@ from datetime import datetime
 # insert(1, "sona", "2021-1-31", "2021-1-31", "incomplete")
 # print("new")
 
-class Databases:
+class Sample:
 
     def __init__(self):
         self.con = connector.connect(host='localhost', port='3306',user='root',password='drupal',database='pyDb')
@@ -34,13 +34,8 @@ class Databases:
         cursors.execute(query)
         print("table is created")
 
-    def insert(self, titles): 
 
-        #to check if the same task already exists
-
-        # check_qu = "SELECT title FROM names"
-        # taskExistQuery = 
-        #insert a new task
+    def insertTask(self, titles): 
         now = datetime.now()
         formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
         query = "insert into names(title,created_at) values('{}', '{}')".format(titles, formatted_date) 
@@ -64,7 +59,7 @@ class Databases:
             print("status:", row[4])
 
      #update/edit the record
-    def update(self, id, newName, newStatus):
+    def updateItems(self, id, newName, newStatus):
         query = "UPDATE names set title='{}' , status='{}' where id={}".format(newName, newStatus, id)
         cur = self.con.cursor() 
         cur.execute(query)
@@ -72,7 +67,7 @@ class Databases:
         print("updated")
 
     # mark as complete
-    def complete(self, id):
+    def markComplete(self, id):
         query = "UPDATE names set status = 'complete' where id = {}".format(id)  
         cur = self.con.cursor() 
         cur.execute(query)
@@ -80,7 +75,7 @@ class Databases:
         print("task is marked as complete")
 
     #delete a record
-    def delete(self,id):
+    def deleteTask(self,id):
         query = "DELETE FROM names where id = {}".format(id)
         cur = self.con.cursor() 
         cur.execute(query)
@@ -88,7 +83,7 @@ class Databases:
         print("the selected task is deleted")
 
 
-    def search(self,title):
+    def searchTask(self,title):
         query = "SELECT * from names where title = '{}'".format(title)
         cur = self.con.cursor() 
         cur.execute(query)
@@ -99,15 +94,44 @@ class Databases:
             print("completed_at:", row[3])
             print("status:", row[4])
 
+def main():
+        obj = Sample()
+        parser = argparse.ArgumentParser(description="make the entries into the table")
+        parser.add_argument('--insert', help="insert an entry into the table")
+        parser.add_argument('--fetch', help="fetch or get data from the table")
+        parser.add_argument('--update', nargs=3, help="Update data of the table")
+        parser.add_argument('--complete', help="mark an entry status as done")
+        parser.add_argument('--delete', help="Delete a record")
+        parser.add_argument('--search', help="search for a record in the table")
+        args = parser.parse_args()
+
+        if args.insert:
+            obj.insertTask(args.insert)
+        elif args.fetch:
+            obj.fetchItems(args.fetch) 
+        elif args.update:
+            id, newName, newStatus = args.update
+            obj.updateItems(id, newName, newStatus)
+        elif args.complete:
+            obj.markComplete(args.complete)
+        elif args.delete:
+            obj.deleteTask(args.delete)
+        elif args.search:
+            obj.searchTask(args.search)
+        else:
+            parser.print_help()
+
+if __name__ == "__main__":
+    main()                     
 
 
-    # def main():
-    #     parser = argparse.ArgumentParser(description="TODO List Manager")
-    #     parser.add_argument('--create', help="Create a new task with title")
-    #     parser.add_argument('--edit', nargs=3, help="Edit task title. Provide task ID and new title")
-    #     parser.add_argument('--delete', help="Delete a task. Provide task ID")
-    #     parser.add_argument('--list', choices=['all', 'incomplete', 'complete'], help="List tasks")
-    #     parser.add_argument('--search', help="Search tasks by title")
+
+
+
+
+
+
+
 
         
 
